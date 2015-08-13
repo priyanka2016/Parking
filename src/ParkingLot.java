@@ -14,6 +14,15 @@ public class ParkingLot {
 
     private final int TOTAL_CAPACITY;
     private Map<Token,Car> parkedCars;
+    private ParkingLotOwner owner;
+
+    public ParkingLot(int totalCapacity,ParkingLotOwner owner) {
+
+        TOTAL_CAPACITY=totalCapacity;
+        parkedCars=new HashMap<Token, Car>();
+        this.owner=owner;
+
+    }
 
     public ParkingLot(int totalCapacity) {
 
@@ -21,7 +30,6 @@ public class ParkingLot {
         parkedCars=new HashMap<Token, Car>();
 
     }
-
     public Token park(Car car)
     {
 
@@ -29,8 +37,11 @@ public class ParkingLot {
 
             Token token=new Token();
             parkedCars.put(token,car);
+            if(parkedCars.size()==TOTAL_CAPACITY)
+                notifyOwner();
             return token;
         }
+
         if(!isParkingSpaceAvailable())
             throw new SpaceNotAvailableException("Ooops Space Not Available!!!");
         else
@@ -51,8 +62,14 @@ public class ParkingLot {
         {
             return false;
         }
-        return true;
 
+            return true;
+
+    }
+
+    private void notifyOwner()
+    {
+        owner.getNotification();
     }
 
     public Car unParkCar(Token token){
