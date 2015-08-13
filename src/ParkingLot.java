@@ -1,4 +1,11 @@
+import exceptions.CarDoesNotExistException;
+import exceptions.CarIsAlreadyParkedException;
 import exceptions.SpaceNotAvailableException;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by sai on 12/08/2015.
@@ -6,33 +13,60 @@ import exceptions.SpaceNotAvailableException;
 public class ParkingLot {
 
     private final int TOTAL_CAPACITY;
-    private int availableCapacity;
+    private Map<Token,Car> parkedCars;
 
     public ParkingLot(int totalCapacity) {
 
         TOTAL_CAPACITY=totalCapacity;
-        availableCapacity=TOTAL_CAPACITY;
+        parkedCars=new HashMap<Token, Car>();
 
     }
 
-    public boolean park(Car car)
+    public Token park(Car car)
     {
-        if(isParkingSpaceAvailable()) {
-            availableCapacity--;
-            return true;
+
+        if(isParkingSpaceAvailable() && isNotParked(car)) {
+
+            Token token=new Token();
+            parkedCars.put(token,car);
+            return token;
         }
+        if(!isParkingSpaceAvailable())
             throw new SpaceNotAvailableException("Ooops Space Not Available!!!");
+        else
+            throw new CarIsAlreadyParkedException();
 
 
+    }
+
+    private boolean isNotParked(Car car){
+        if(parkedCars.containsValue(car))
+            return false;
+        else return true;
     }
 
     private boolean isParkingSpaceAvailable()
     {
-        if(TOTAL_CAPACITY-availableCapacity==TOTAL_CAPACITY)
+        if(parkedCars.size()>=TOTAL_CAPACITY)
         {
             return false;
         }
         return true;
+
+    }
+
+    public Car unParkCar(Token token){
+        if(isThisCarParked(token)) {
+            Car car = parkedCars.get(token);
+            parkedCars.remove(token);
+            return car;
+        }
+        else
+             throw new CarDoesNotExistException("sorry car does not exist");
+    }
+
+    private boolean isThisCarParked(Token token){
+        return parkedCars.containsKey(token);
 
     }
 

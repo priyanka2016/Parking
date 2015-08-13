@@ -20,4 +20,8 @@ public class Car {
 
     }
 
+    @Override
+    public int hashCode() {
+        return carNo != null ? carNo.hashCode() : 0;
+    }
 }
