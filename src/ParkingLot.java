@@ -2,10 +2,7 @@ import exceptions.CarDoesNotExistException;
 import exceptions.CarIsAlreadyParkedException;
 import exceptions.SpaceNotAvailableException;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by sai on 12/08/2015.
@@ -14,13 +11,16 @@ public class ParkingLot {
 
     private final int TOTAL_CAPACITY;
     private Map<Token,Car> parkedCars;
-    private ParkingLotOwner owner;
+    private Subscriber parkingLotOwner;
+    private List<Subscriber> subscribers;
 
-    public ParkingLot(int totalCapacity,ParkingLotOwner owner) {
+    public ParkingLot(int totalCapacity,Subscriber owner) {
 
         TOTAL_CAPACITY=totalCapacity;
         parkedCars=new HashMap<Token, Car>();
-        this.owner=owner;
+        this.subscribers = new ArrayList<Subscriber>();
+        this.parkingLotOwner = owner;
+        subscribers.add(owner);
 
     }
 
@@ -30,6 +30,10 @@ public class ParkingLot {
         parkedCars=new HashMap<Token, Car>();
 
     }
+
+    public void addSubscriber(Subscriber subscriber){
+        subscribers.add(subscriber);
+    }
     public Token park(Car car)
     {
 
@@ -38,7 +42,7 @@ public class ParkingLot {
             Token token=new Token();
             parkedCars.put(token,car);
             if(parkedCars.size()==TOTAL_CAPACITY)
-                notifyOwner();
+                notifySubscriberWhenFull();
             return token;
         }
 
@@ -67,15 +71,18 @@ public class ParkingLot {
 
     }
 
-    private void notifyOwner()
+    private void notifySubscriberWhenFull()
     {
-        owner.getNotification();
+        for(Subscriber s : subscribers)
+         s.getFullNotification();
     }
 
     public Car unParkCar(Token token){
         if(isThisCarParked(token)) {
             Car car = parkedCars.get(token);
             parkedCars.remove(token);
+            if(parkedCars.size()==TOTAL_CAPACITY-1)
+                ((ParkingLotOwner)parkingLotOwner).getSpaceAvailableNotification();
             return car;
         }
         else

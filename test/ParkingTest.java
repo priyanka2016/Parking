@@ -19,31 +19,76 @@ public class ParkingTest {
     }
 
     @Test
-    public void shouldNotify()
+    public void shouldNotifySubsciberWhenParkingFull()
     {
-        ParkingLotOwner owner=mock(ParkingLotOwner.class);
+        Subscriber owner=mock(ParkingLotOwner.class);
         ParkingLot parkingLot=new ParkingLot(1,owner);
+        Subscriber agent=mock(FBIAgent.class);
+        parkingLot.addSubscriber(agent);
         Car car=new Car("MH 1023");
         parkingLot.park(car);
+        verify(owner,times(1)).getFullNotification();
+        verify(agent,times(1)).getFullNotification();
+    }
 
-        verify(owner,times(1)).getNotification();
+
+    @Test
+    public void shouldNotNotifySubscriberWhenParkingNotFull()
+    {
+        Subscriber owner=mock(ParkingLotOwner.class);
+        ParkingLot parkingLot=new ParkingLot(2,owner);
+        Subscriber agent=mock(FBIAgent.class);
+        parkingLot.addSubscriber(agent);
+        Car car=new Car("MH 1023");
+        parkingLot.park(car);
+        verify(owner,never()).getFullNotification();
+        verify(agent,never()).getFullNotification();
+    }
+
+   /* @Test
+    public void shouldNotifyOnceWhenFull(){
+        ParkingLotOwner owner=mock(ParkingLotOwner.class);
+        ParkingLot parkingLot=new ParkingLot(1,owner);
+
+        try{
+        Car car=new Car("MH 1023");
+        parkingLot.park(car);
+        Car car2=new Car("MH 1023");
+        parkingLot.park(car2);
+        }
+
+        catch (SpaceNotAvailableException e){}
+
+        finally {
+            verify(owner, times(1)).getFullNotification();
+        }
+    }
+*/
+    @Test
+    public void shouldNotifyOwnerWhenParkingSpaceAvailable(){
+        Subscriber owner=mock(ParkingLotOwner.class);
+        ParkingLot parkingLot=new ParkingLot(1,owner);
+        Car car=new Car("MH 1023");
+        Token token = parkingLot.park(car);
+        parkingLot.unParkCar(token);
+        verify((ParkingLotOwner)owner,times(1)).getSpaceAvailableNotification();
     }
 
     @Test
-    public void shouldNotNotify()
-    {
-        ParkingLotOwner owner=mock(ParkingLotOwner.class);
-        ParkingLot parkingLot=new ParkingLot(2,owner);
+    public void should_not_send_owner_space_available_notification_when_full(){
+        Subscriber owner=mock(ParkingLotOwner.class);
+        ParkingLot parkingLot=new ParkingLot(1,owner);
         Car car=new Car("MH 1023");
         parkingLot.park(car);
-        verify(owner,never()).getNotification();
+        verify((ParkingLotOwner)owner,never()).getSpaceAvailableNotification();
     }
 
 
     @Test(expected=SpaceNotAvailableException.class)
     public void shouldNotParkACar()
     {
-        ParkingLot parkingLot=new ParkingLot(1);
+        Subscriber owner=new ParkingLotOwner();
+        ParkingLot parkingLot=new ParkingLot(1,owner);
         Car car=new Car("MH 1001");
         Car car1=new Car("MH 1007");
         parkingLot.park(car);
@@ -52,7 +97,8 @@ public class ParkingTest {
 
     @Test
     public void shouldUnParkACar(){
-        ParkingLot parkingLot = new ParkingLot(1);
+        Subscriber owner=new ParkingLotOwner();
+        ParkingLot parkingLot=new ParkingLot(1,owner);
         Car car = new Car("MH 1001");
         Token token=parkingLot.park(car);
         Assert.assertEquals(car, parkingLot.unParkCar(token));
@@ -61,7 +107,8 @@ public class ParkingTest {
 
     @Test(expected= CarDoesNotExistException.class)
     public void shouldNotUnParkACar(){
-        ParkingLot parkingLot = new ParkingLot(1);
+        Subscriber owner=new ParkingLotOwner();
+        ParkingLot parkingLot=new ParkingLot(1,owner);
         Car car = new Car("MH 1001");
         Car car2 = new Car("MH 007");
         Token token=parkingLot.park(car);
@@ -76,30 +123,6 @@ public class ParkingTest {
         parkingLot.park(car);
         parkingLot.park(car);
     }
-
-    /*@Test
-    public void shouldNotifyOwner()
-    {
-        ParkingLotOwner parkingLotOwner=new ParkingLotOwner();
-        ParkingLot parkingLot=new ParkingLot(1,parkingLotOwner);
-        Car car=new Car("MH 1001");
-        parkingLot.park(car);
-        Assert.assertTrue(parkingLot.notifyOwner());
-
-    }
-
-    @Test
-    public void shouldNotNotifyOwner()
-    {
-        ParkingLotOwner parkingLotOwner=new ParkingLotOwner();
-        ParkingLot parkingLot=new ParkingLot(2,parkingLotOwner);
-        Car car=new Car("MH 1001");
-        parkingLot.park(car);
-        Assert.assertFalse(parkingLot.notifyOwner());
-
-    }*/
-
-
 
 
 }
