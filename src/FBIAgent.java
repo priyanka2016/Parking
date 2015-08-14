@@ -5,7 +5,7 @@ public class FBIAgent implements Subscriber {
 
 
     @Override
-    public void notifySubscriber() {
+    public void notifySubscriber(ParkingLot parkingLot) {
 
     }
 }

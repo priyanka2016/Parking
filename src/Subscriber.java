@@ -3,6 +3,6 @@
  */
 public interface Subscriber {
 
-    public void notifySubscriber();
+    public void notifySubscriber(ParkingLot parkingLot);
 
 }

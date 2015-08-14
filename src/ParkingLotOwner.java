@@ -4,7 +4,7 @@
 public class ParkingLotOwner implements Subscriber {
 
     @Override
-    public void notifySubscriber() {
+    public void notifySubscriber(ParkingLot parkingLot) {
 
     }
 }

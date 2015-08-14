@@ -27,7 +27,7 @@ public class ParkingTest {
         parkingLot.subscribe(NotificationType.EIGHTY_PERCENT_FULL, agent);
         Car car=new Car("MH 1023");
         parkingLot.park(car);
-        verify(owner,times(1)).notifySubscriber();
+        verify(owner,times(1)).notifySubscriber(parkingLot);
     }
 
 
@@ -40,7 +40,7 @@ public class ParkingTest {
         parkingLot.subscribe(NotificationType.FULL, owner);
         Car car=new Car("MH 1023");
         parkingLot.park(car);
-        verify(owner,never()).notifySubscriber();
+        verify(owner,never()).notifySubscriber(parkingLot);
 
     }
 
@@ -70,7 +70,7 @@ public class ParkingTest {
         Car car=new Car("MH 1023");
         Token token = parkingLot.park(car);
         parkingLot.unParkCar(token);
-        verify((ParkingLotOwner)owner,times(2)).notifySubscriber();
+        verify((ParkingLotOwner)owner,times(2)).notifySubscriber(parkingLot);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ParkingTest {
         Car car=new Car("MH 1023");
         parkingLot.park(car);
 
-        verify((ParkingLotOwner)owner,times(1)).notifySubscriber();
+        verify((ParkingLotOwner)owner,times(1)).notifySubscriber(parkingLot);
     }
 
 

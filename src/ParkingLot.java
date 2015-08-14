@@ -12,7 +12,7 @@ public class ParkingLot {
     private final int TOTAL_CAPACITY;
     private Map<Token,Car> parkedCars;
     private Subscriber parkingLotOwner;
-    private boolean eightyPercentFull=false;
+    private boolean eightyPercentFullFlag=false;
 
     private Map<NotificationType,List<Subscriber>>  subscribers;
 
@@ -37,6 +37,10 @@ public class ParkingLot {
 
     }
 
+    public int getTOTAL_CAPACITY(){
+        return TOTAL_CAPACITY;
+    }
+
     public void subscribe(NotificationType type,Subscriber subscriber)
     {
        if( subscribers.containsKey(type))
@@ -48,19 +52,17 @@ public class ParkingLot {
        }
     }
 
-   /* public void unSubscribe(NotificationType type,Subscriber subscriber)
+
+    public void unSubscribe(NotificationType type,Subscriber subscriber)
     {
-        for(NotificationType key:subscribers.keySet())
+        if( subscribers.containsKey(type))
         {
-            if(key==type)
-            {
-                for(Subscriber s:subscribers.get(key))
-                {
-                    if(s.)
-                }
+            for(Subscriber s: subscribers.get(type)){
+                if(s==subscriber)
+                    subscribers.get(type).remove(s);
             }
         }
-    }*/
+    }
     public Token park(Car car)
     {
 
@@ -71,9 +73,9 @@ public class ParkingLot {
             parkedCars.put(token,car);
             if(parkedCars.size()==TOTAL_CAPACITY)//WHEN pARKING FULL
                  notifySubscriber(NotificationType.FULL);
-            if(isParkingEightyPercentFull()&&eightyPercentFull==false)
+            if(isParkingEightyPercentFull()&& eightyPercentFullFlag ==false)
             {
-                eightyPercentFull=true;
+                eightyPercentFullFlag =true;
                 notifySubscriber(NotificationType.EIGHTY_PERCENT_FULL);
             }
             return token;
@@ -117,7 +119,7 @@ public class ParkingLot {
             {
                 for(Subscriber s:subscribers.get(key))
                 {
-                    s.notifySubscriber();
+                    s.notifySubscriber(this);
                 }
             }
         }
@@ -138,6 +140,9 @@ public class ParkingLot {
     private boolean isThisCarParked(Token token){
         return parkedCars.containsKey(token);
 
+    }
+    public int getAvailbleSpace(){
+        return TOTAL_CAPACITY - parkedCars.size();
     }
 
 }
