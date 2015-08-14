@@ -3,9 +3,9 @@
  */
 public class FBIAgent implements Subscriber {
 
-    public void getFullNotification() {
 
-        System.out.println("put board");
+    @Override
+    public void notifySubscriber() {
 
     }
 }

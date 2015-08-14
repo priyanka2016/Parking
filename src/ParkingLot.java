@@ -12,15 +12,21 @@ public class ParkingLot {
     private final int TOTAL_CAPACITY;
     private Map<Token,Car> parkedCars;
     private Subscriber parkingLotOwner;
-    private List<Subscriber> subscribers;
+    private boolean eightyPercentFull=false;
+
+    private Map<NotificationType,List<Subscriber>>  subscribers;
 
     public ParkingLot(int totalCapacity,Subscriber owner) {
 
         TOTAL_CAPACITY=totalCapacity;
         parkedCars=new HashMap<Token, Car>();
-        this.subscribers = new ArrayList<Subscriber>();
+       subscribers=new HashMap<NotificationType, List<Subscriber>>();
+        subscribers.put(NotificationType.AVAILABLE,new ArrayList<Subscriber>() );
+        subscribers.put(NotificationType.EIGHTY_PERCENT_FULL,new ArrayList<Subscriber>() );
+        subscribers.put(NotificationType.FULL,new ArrayList<Subscriber>() );
         this.parkingLotOwner = owner;
-        subscribers.add(owner);
+        subscribe(NotificationType.AVAILABLE,owner);
+        subscribe(NotificationType.FULL,owner);
 
     }
 
@@ -31,18 +37,45 @@ public class ParkingLot {
 
     }
 
-    public void addSubscriber(Subscriber subscriber){
-        subscribers.add(subscriber);
+    public void subscribe(NotificationType type,Subscriber subscriber)
+    {
+       if( subscribers.containsKey(type))
+                subscribers.get(type).add(subscriber);
+
+        else{
+           subscribers.put(type,new ArrayList<Subscriber>());
+           subscribers.get(type).add(subscriber);
+       }
     }
+
+   /* public void unSubscribe(NotificationType type,Subscriber subscriber)
+    {
+        for(NotificationType key:subscribers.keySet())
+        {
+            if(key==type)
+            {
+                for(Subscriber s:subscribers.get(key))
+                {
+                    if(s.)
+                }
+            }
+        }
+    }*/
     public Token park(Car car)
     {
+
 
         if(isParkingSpaceAvailable() && isNotParked(car)) {
 
             Token token=new Token();
             parkedCars.put(token,car);
-            if(parkedCars.size()==TOTAL_CAPACITY)
-                notifySubscriberWhenFull();
+            if(parkedCars.size()==TOTAL_CAPACITY)//WHEN pARKING FULL
+                 notifySubscriber(NotificationType.FULL);
+            if(isParkingEightyPercentFull()&&eightyPercentFull==false)
+            {
+                eightyPercentFull=true;
+                notifySubscriber(NotificationType.EIGHTY_PERCENT_FULL);
+            }
             return token;
         }
 
@@ -50,8 +83,14 @@ public class ParkingLot {
             throw new SpaceNotAvailableException("Ooops Space Not Available!!!");
         else
             throw new CarIsAlreadyParkedException();
-
-
+    }
+    private boolean isParkingEightyPercentFull()
+    {
+        if(parkedCars.size()>=.8*TOTAL_CAPACITY)
+        {
+            return true;
+        }
+        return false;
     }
 
     private boolean isNotParked(Car car){
@@ -71,18 +110,25 @@ public class ParkingLot {
 
     }
 
-    private void notifySubscriberWhenFull()
+    private void notifySubscriber(NotificationType type)
     {
-        for(Subscriber s : subscribers)
-         s.getFullNotification();
+        for(NotificationType key : subscribers.keySet()) {
+            if(key==type)
+            {
+                for(Subscriber s:subscribers.get(key))
+                {
+                    s.notifySubscriber();
+                }
+            }
+        }
     }
 
     public Car unParkCar(Token token){
         if(isThisCarParked(token)) {
             Car car = parkedCars.get(token);
             parkedCars.remove(token);
-            if(parkedCars.size()==TOTAL_CAPACITY-1)
-                ((ParkingLotOwner)parkingLotOwner).getSpaceAvailableNotification();
+            if(parkedCars.size()==TOTAL_CAPACITY-1)//AVAILABLE AFTER FULL PARKING
+                notifySubscriber(NotificationType.AVAILABLE);
             return car;
         }
         else

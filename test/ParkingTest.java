@@ -24,11 +24,10 @@ public class ParkingTest {
         Subscriber owner=mock(ParkingLotOwner.class);
         ParkingLot parkingLot=new ParkingLot(1,owner);
         Subscriber agent=mock(FBIAgent.class);
-        parkingLot.addSubscriber(agent);
+        parkingLot.subscribe(NotificationType.EIGHTY_PERCENT_FULL, agent);
         Car car=new Car("MH 1023");
         parkingLot.park(car);
-        verify(owner,times(1)).getFullNotification();
-        verify(agent,times(1)).getFullNotification();
+        verify(owner,times(1)).notifySubscriber();
     }
 
 
@@ -37,12 +36,12 @@ public class ParkingTest {
     {
         Subscriber owner=mock(ParkingLotOwner.class);
         ParkingLot parkingLot=new ParkingLot(2,owner);
-        Subscriber agent=mock(FBIAgent.class);
-        parkingLot.addSubscriber(agent);
+
+        parkingLot.subscribe(NotificationType.FULL, owner);
         Car car=new Car("MH 1023");
         parkingLot.park(car);
-        verify(owner,never()).getFullNotification();
-        verify(agent,never()).getFullNotification();
+        verify(owner,never()).notifySubscriber();
+
     }
 
    /* @Test
@@ -71,7 +70,7 @@ public class ParkingTest {
         Car car=new Car("MH 1023");
         Token token = parkingLot.park(car);
         parkingLot.unParkCar(token);
-        verify((ParkingLotOwner)owner,times(1)).getSpaceAvailableNotification();
+        verify((ParkingLotOwner)owner,times(2)).notifySubscriber();
     }
 
     @Test
@@ -80,7 +79,8 @@ public class ParkingTest {
         ParkingLot parkingLot=new ParkingLot(1,owner);
         Car car=new Car("MH 1023");
         parkingLot.park(car);
-        verify((ParkingLotOwner)owner,never()).getSpaceAvailableNotification();
+
+        verify((ParkingLotOwner)owner,times(1)).notifySubscriber();
     }
 
 
